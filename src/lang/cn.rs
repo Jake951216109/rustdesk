@@ -372,6 +372,9 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Please wait for confirmation of UAC...", "请等待对方确认 UAC..."),
         ("elevated_foreground_window_tip", "远端桌面的当前窗口需要更高的权限才能操作, 暂时无法使用鼠标键盘, 可以请求对方最小化当前窗口, 或者在连接管理窗口点击提升。为避免这个问题，建议在远端设备上安装本软件。"),
         ("Disconnected", "会话已结束"),
+        ("Connection ended", "连接已断开"),   //20260409新增
+        ("Remote user", "远程用户"),    //20260409新增
+        ("has disconnected", "已断开连接"),    //20260409新增
         ("Other", "其他"),
         ("Confirm before closing multiple tabs", "关闭多个标签页时向您确认"),
         ("Keyboard Settings", "键盘设置"),

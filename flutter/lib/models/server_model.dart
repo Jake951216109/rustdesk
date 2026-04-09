@@ -713,13 +713,42 @@ class ServerModel with ChangeNotifier {
     }
   }
 
+  // void onClientRemove(Map<String, dynamic> evt) {
+  //   try {
+  //     final id = int.parse(evt['id'] as String);
+  //     final close = (evt['close'] as String) == 'true';
+  //     if (_clients.any((c) => c.id == id)) {
+  //       final index = _clients.indexWhere((client) => client.id == id);
+  //       if (index >= 0) {
+  //         if (close) {
+  //           _clients.removeAt(index);
+  //           tabController.remove(index);
+  //         } else {
+  //           _clients[index].disconnected = true;
+  //         }
+  //       }
+  //       parent.target?.dialogManager.dismissByTag(getLoginDialogTag(id));
+  //       parent.target?.invokeMethod("cancel_notification", id);
+  //     }
+  //     if (desktopType == DesktopType.cm && _clients.isEmpty) {
+  //       hideCmWindow();
+  //     }
+  //     if (isAndroid) androidUpdatekeepScreenOn();
+  //     notifyListeners();
+  //   } catch (e) {
+  //     debugPrint("onClientRemove failed,error:$e");
+  //   }
+  // }
+
   void onClientRemove(Map<String, dynamic> evt) {
     try {
       final id = int.parse(evt['id'] as String);
       final close = (evt['close'] as String) == 'true';
+      Client? removedClient;
       if (_clients.any((c) => c.id == id)) {
         final index = _clients.indexWhere((client) => client.id == id);
         if (index >= 0) {
+          removedClient = _clients[index];
           if (close) {
             _clients.removeAt(index);
             tabController.remove(index);
@@ -730,14 +759,42 @@ class ServerModel with ChangeNotifier {
         parent.target?.dialogManager.dismissByTag(getLoginDialogTag(id));
         parent.target?.invokeMethod("cancel_notification", id);
       }
-      if (desktopType == DesktopType.cm && _clients.isEmpty) {
-        hideCmWindow();
+      if (removedClient != null &&
+          removedClient.authorized &&
+          !removedClient.isFileTransfer) {
+        _showDisconnectDialog(removedClient);
+      } else {
+        if (desktopType == DesktopType.cm && _clients.isEmpty) {
+          hideCmWindow();
+        }
       }
       if (isAndroid) androidUpdatekeepScreenOn();
       notifyListeners();
     } catch (e) {
       debugPrint("onClientRemove failed,error:$e");
     }
+  }
+
+//showDisconnectDialog是新增的代码，增加断开提醒功能
+
+  void _showDisconnectDialog(Client client) {
+    final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
+    parent.target?.dialogManager.show((setState, close, context) {
+      return CustomAlertDialog(
+        title: Text(translate("Connection ended")),
+        content: Text(
+            "${translate("Remote user")} $peerInfo ${translate("has disconnected")}"),
+        actions: [
+          dialogButton("OK", onPressed: () {
+            close();
+            if (desktopType == DesktopType.cm && _clients.isEmpty) {
+              hideCmWindow();
+            }
+          }),
+        ],
+        onCancel: null,
+      );
+    });
   }
 
   Future<void> closeAll() async {

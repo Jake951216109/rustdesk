@@ -777,8 +777,12 @@ class ServerModel with ChangeNotifier {
 
 //showDisconnectDialog是新增的代码，增加断开提醒功能
 
-  void _showDisconnectDialog(Client client) {
+  void _showDisconnectDialog(Client client) async {
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
+    if (isDesktop && desktopType == DesktopType.cm) {
+      await windowManager.show();
+      await windowManager.focus();
+    }
     parent.target?.dialogManager.show((setState, close, context) {
       return CustomAlertDialog(
         title: Text(translate("Connection ended")),
@@ -796,6 +800,7 @@ class ServerModel with ChangeNotifier {
       );
     });
   }
+
 
   Future<void> closeAll() async {
     await Future.wait(

@@ -9,6 +9,7 @@ import 'package:flutter_hbb/models/chat_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:local_notifier/local_notifier.dart';
 
 import '../common.dart';
 import '../common/formatter/id_formatter.dart';
@@ -779,12 +780,24 @@ class ServerModel with ChangeNotifier {
 
   void _showDisconnectDialog(Client client) async {
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
+    if (isDesktop) {
+      final notification = LocalNotification(
+        title: translate("Connection ended"),
+        body:
+            "${translate("Remote user")} $peerInfo ${translate("has disconnected")}",
+      );
+      await notification.show();
+    }
     if (isDesktop && desktopType == DesktopType.cm) {
       //if (stateGlobal.isMinimized) {
       if (await windowManager.isMinimized()) {
         await windowManager.restore();
       }
+      // await windowManager.show();
+      // await windowManager.focus();
       await windowManager.show();
+      await windowManager.setAlwaysOnTop(true);
+      await windowManager.setAlwaysOnTop(false);
       await windowManager.focus();
     }
     parent.target?.dialogManager.show((setState, close, context) {

@@ -22,6 +22,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:local_notifier/local_notifier.dart';
 
 import 'common.dart';
 import 'consts.dart';
@@ -105,6 +106,8 @@ Future<void> main(List<String> args) async {
     debugPrint("--cm started");
     desktopType = DesktopType.cm;
     await windowManager.ensureInitialized();
+    await localNotifier.setup(appName: 'RustDesk');
+    
     runConnectionManagerScreen();
   } else if (args.contains('--install')) {
     runInstallPage();

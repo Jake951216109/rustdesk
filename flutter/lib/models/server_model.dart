@@ -780,7 +780,8 @@ class ServerModel with ChangeNotifier {
   void _showDisconnectDialog(Client client) async {
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
     if (isDesktop && desktopType == DesktopType.cm) {
-      if (stateGlobal.isMinimized) {
+      //if (stateGlobal.isMinimized) {
+      if (await windowManager.isMinimized()) {
         await windowManager.restore();
       }
       await windowManager.show();

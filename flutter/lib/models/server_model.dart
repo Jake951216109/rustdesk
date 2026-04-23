@@ -39,6 +39,7 @@ class ServerModel with ChangeNotifier {
   bool _allowNumericOneTimePassword = false;
   String _approveMode = "";
   int _zeroClientLengthCounter = 0;
+  bool _showingDisconnectDialog = false;
 
   late String _emptyIdShow;
   late final IDTextEditingController _serverId;
@@ -163,11 +164,21 @@ class ServerModel with ChangeNotifier {
           debugPrint("clients not match!");
           updateClientState(res);
         } else {
+          // if (_clients.isEmpty) {
+          //   hideCmWindow();
+          //   if (_zeroClientLengthCounter++ == 12) {
+          //     // 6 second
+          //     windowManager.close();
+          //   }
+          // } else {
+
           if (_clients.isEmpty) {
-            hideCmWindow();
-            if (_zeroClientLengthCounter++ == 12) {
-              // 6 second
-              windowManager.close();
+            if (!_showingDisconnectDialog) {
+              hideCmWindow();
+              if (_zeroClientLengthCounter++ == 12) {
+                // 6 second
+                windowManager.close();
+              }
             }
           } else {
             _zeroClientLengthCounter = 0;
@@ -779,6 +790,7 @@ class ServerModel with ChangeNotifier {
 //showDisconnectDialog是新增的代码，增加断开提醒功能
 
   void _showDisconnectDialog(Client client) async {
+    _showingDisconnectDialog = true; 
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
     if (isDesktop) {
       final notification = LocalNotification(
@@ -806,7 +818,11 @@ class ServerModel with ChangeNotifier {
         content: Text(
             "${translate("Remote user")} $peerInfo ${translate("has disconnected")}"),
         actions: [
+          // dialogButton("OK", onPressed: () {
+          //   close();
+
           dialogButton("OK", onPressed: () {
+            _showingDisconnectDialog = false;   // ← 新增
             close();
             if (desktopType == DesktopType.cm && _clients.isEmpty) {
               hideCmWindow();

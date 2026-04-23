@@ -1,3 +1,4 @@
+import UserNotifications
 import Cocoa
 import FlutterMacOS
 
@@ -20,5 +21,6 @@ class AppDelegate: FlutterAppDelegate {
     override func applicationDidFinishLaunching(_ aNotification: Notification) {
         launched = true;
         NSApplication.shared.activate(ignoringOtherApps: true);
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 }

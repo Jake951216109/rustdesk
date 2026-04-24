@@ -550,9 +550,19 @@ class ServerModel with ChangeNotifier {
         debugPrint("Failed to decode clientJson '$clientJson', error $e");
       }
     }
+    // if (desktopType == DesktopType.cm) {
+    //   if (_clients.isEmpty) {
+    //     hideCmWindow();
+    //   } else if (!hideCm) {
+    //     showCmWindow();
+    //   }
+    // }
+
     if (desktopType == DesktopType.cm) {
       if (_clients.isEmpty) {
-        hideCmWindow();
+        if (!_showingDisconnectDialog) {
+          hideCmWindow();
+        }
       } else if (!hideCm) {
         showCmWindow();
       }
@@ -776,7 +786,8 @@ class ServerModel with ChangeNotifier {
           !removedClient.isFileTransfer) {
         _showDisconnectDialog(removedClient);
       } else {
-        if (desktopType == DesktopType.cm && _clients.isEmpty) {
+        //if (desktopType == DesktopType.cm && _clients.isEmpty) {
+        if (desktopType == DesktopType.cm && _clients.isEmpty && !_showingDisconnectDialog) {
           hideCmWindow();
         }
       }
@@ -791,6 +802,8 @@ class ServerModel with ChangeNotifier {
 
   void _showDisconnectDialog(Client client) async {
     _showingDisconnectDialog = true; 
+    cmHiddenTimer?.cancel();    //20260424新增
+    cmHiddenTimer = null;     //20260424新增
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
     if (isDesktop) {
       final notification = LocalNotification(
@@ -807,19 +820,24 @@ class ServerModel with ChangeNotifier {
       }
       // await windowManager.show();
       // await windowManager.focus();
+      await windowManager.setOpacity(1);
       await windowManager.show();
       await windowManager.setAlwaysOnTop(true);
       await windowManager.setAlwaysOnTop(false);
       await windowManager.focus();
     }
-    parent.target?.dialogManager.show((setState, close, context) {
+    //parent.target?.dialogManager.show((setState, close, context) {
+    final dialogManager = parent.target?.dialogManager;
+    if (dialogManager == null) {
+      _showingDisconnectDialog = false;
+      return;
+    }
+    dialogManager.show((setState, close, context) {
       return CustomAlertDialog(
         title: Text(translate("Connection ended")),
         content: Text(
             "${translate("Remote user")} $peerInfo ${translate("has disconnected")}"),
         actions: [
-          // dialogButton("OK", onPressed: () {
-          //   close();
 
           dialogButton("OK", onPressed: () {
             _showingDisconnectDialog = false;   // ← 新增

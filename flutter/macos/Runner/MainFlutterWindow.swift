@@ -1,6 +1,7 @@
 import Cocoa
 import AVFoundation
 import FlutterMacOS
+import UserNotifications
 import desktop_multi_window
 // import bitsdojo_window_macos
 
@@ -277,6 +278,24 @@ class MainFlutterWindow: NSWindow {
                 case "disableNativeRelativeMouseMode":
                     self.disableNativeRelativeMouseMode()
                     result(true)
+
+                //以下是20260528新增    
+                case "showNotification":
+                    let arg = call.arguments as? [String: Any] ?? [:]
+                    let title = arg["title"] as? String ?? ""
+                    let body = arg["body"] as? String ?? ""
+                    let content = UNMutableNotificationContent()
+                    content.title = title
+                    content.body = body
+                    content.sound = UNNotificationSound.default
+                    let request = UNNotificationRequest(
+                        identifier: UUID().uuidString,
+                        content: content,
+                        trigger: nil
+                    )
+                    UNUserNotificationCenter.current().add(request)
+                    result(nil)
+
 
                 default:
                     result(FlutterMethodNotImplemented)

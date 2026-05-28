@@ -106,7 +106,12 @@ Future<void> main(List<String> args) async {
     debugPrint("--cm started");
     desktopType = DesktopType.cm;
     await windowManager.ensureInitialized();
-    await localNotifier.setup(appName: 'RustDesk');
+    //await localNotifier.setup(appName: 'RustDesk');  20260528换成下面内容
+
+    if (!isMacOS) {
+      await localNotifier.setup(appName: 'RustDesk');
+    }
+
     
     runConnectionManagerScreen();
   } else if (args.contains('--install')) {

@@ -805,14 +805,38 @@ class ServerModel with ChangeNotifier {
     cmHiddenTimer?.cancel();    //20260424新增
     cmHiddenTimer = null;     //20260424新增
     final peerInfo = client.name.isNotEmpty ? client.name : client.peerId;
+    // if (isDesktop) {     //20260528注释
+    //   final notification = LocalNotification(
+    //     title: translate("Connection ended"),
+    //     body:
+    //         "${translate("Remote user")} $peerInfo ${translate("has disconnected")}",
+    //   );
+    //   await notification.show();
+    // }
+
     if (isDesktop) {
-      final notification = LocalNotification(
-        title: translate("Connection ended"),
-        body:
-            "${translate("Remote user")} $peerInfo ${translate("has disconnected")}",
-      );
-      await notification.show();
+      if (isMacOS) {
+        try {
+          await const MethodChannel('org.rustdesk.rustdesk/host')
+              .invokeMethod('showNotification', {
+            'title': translate("Connection ended"),
+            'body':
+                '${translate("Remote user")} $peerInfo ${translate("has disconnected")}',
+          });
+        } catch (e) {
+          debugPrint('showNotification failed: $e');
+        }
+      } else {
+        final notification = LocalNotification(
+          title: translate("Connection ended"),
+          body:
+              "${translate("Remote user")} $peerInfo ${translate("has disconnected")}",
+        );
+        await notification.show();
+      }
     }
+
+
     if (isDesktop && desktopType == DesktopType.cm) {
       //if (stateGlobal.isMinimized) {
       if (await windowManager.isMinimized()) {

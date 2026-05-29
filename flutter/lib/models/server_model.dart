@@ -817,7 +817,8 @@ class ServerModel with ChangeNotifier {
     if (isDesktop) {
       if (isMacOS) {
         try {
-          await const MethodChannel('org.rustdesk.rustdesk/host')
+          //await const MethodChannel('org.rustdesk.rustdesk/host')
+          await MethodChannel('org.rustdesk.rustdesk/host')
               .invokeMethod('showNotification', {
             'title': translate("Connection ended"),
             'body':
